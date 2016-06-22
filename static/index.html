@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Order List</title>
+  </head>
+
+  <body>
+    <h1>Order List</h1>
+
+    <table id="order-list">
+      <tr> <th>Number</th> <th>Side</th> <th>Quantity</th> <th>Price</th> </tr>
+      <tbody>
+        <tr v-for="order in orders">
+          <td>{{ order.number }}</td>
+          <td>{{ order.side }}</td>
+          <td>{{ order.quantity }}</td>
+          <td>{{ order.price }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!--------------------------------- Scripts ------------------------------------------>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/vue.min.js"></script>
+    <script src="orders.js"></script>
+  </body>
+</html>

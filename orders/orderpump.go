@@ -59,7 +59,7 @@ func (pump *OrderPump) List(start int, maxsize int) []*Order {
 	}
 
 	size := minInt2(len(pump.orders)-start, maxsize)
-	ret := make([]*Order, 0, size)
+	ret := make([]*Order, size)
 	n := copy(ret, pump.orders[start:start+size])
 	if n != size {
 		panic("unexpected copy size")
