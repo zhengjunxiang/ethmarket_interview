@@ -138,8 +138,8 @@ class Main extends Component {
       <Layout className="my-layout">
         <Header><h2>证券交易市场</h2></Header>
         <Content>
-          <Row>
-            <Col span={12}>
+          <Row gutter={16}>
+            <Col md={12}>
               <Tabs defaultActiveKey="1">
                 <TabPane tab={`买单(bid) ${payDatas.length}条记录`} key="1">
                   <Table columns={columnsDeal} data={payDatas} getBodyWrapper={this.getBodyWrapper} />
@@ -149,7 +149,7 @@ class Main extends Component {
                 </TabPane>
               </Tabs>
             </Col>
-            <Col span={12}>
+            <Col md={12}>
               <Table
                 columns={columnsDetail}
                 data={tradingD}
