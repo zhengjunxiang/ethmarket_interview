@@ -6,6 +6,7 @@ import 'rc-table/assets/index.css';
 import 'rc-table/assets/animation.css';
 import 'whatwg-fetch';
 import '../style/style.less';
+import {columnsDeal, columnsDetail} from './columns';
 
 const {Header, Content} = Layout;
 const TabPane = Tabs.TabPane;
@@ -16,12 +17,13 @@ class Main extends Component {
     this.state = {
       notDealPay: [],
       notDealSell: [],
-      tradingDetail: []
+      tradingDetail: [], // 记录交易详情
+      currentIndex: 0
     };
   }
   componentWillMount() {
     window.setInterval(() => {
-      fetch('/listOrders?start=0&size=20', {
+      fetch('/listOrders?start=0&size=100', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -29,7 +31,8 @@ class Main extends Component {
       }).then(res => (
         res.json()
       )).then((resp) => {
-        this.renderPlaceOrder(resp);
+        const {currentIndex} = this.state;
+        if (currentIndex < (resp.length && resp.length)) this.renderPlaceOrder(resp);
       }).catch((error) => {
         console.info('error', error);
       });
@@ -50,27 +53,19 @@ class Main extends Component {
     });
     return arr;
   }
-  getDateT(date) {
-    let d = '';
-    let s = '';
-    d = date;
-    s = `${d.getYear() + 1990}-`;             //取年份
-    s = `${s + (d.getMonth() + 1)}-`;//取月份
-    s += `${d.getDate()} `;         //取日期
-    s += `${d.getHours()}:`;       //取小时
-    s += `${d.getMinutes()}:`;    //取分
-    s += d.getSeconds();         //取秒
-    return s;
+  getDateT() {
+    return new Date().toLocaleString();
   }
   renderPlaceOrder(resp) {
+    const {tradingDetail} = this.state;
     const payBill = [];
     const sellSingle = [];
     let orderPayBill = []; // 排列由大到小的买单
     let orderSellSingle = []; // 排列由小到大的卖单
-    const tradingDetail = []; // 记录交易详情
     let notDealPay = [];
     let notDealSell = [];
-    resp.map((data, ind) => {
+    const {notDealPay: notDealP, notDealSell: notDealS, currentIndex} = this.state;
+    [...notDealP, ...notDealS, ...resp.slice(currentIndex)].map((data, ind) => {
       data.key = ind;
       if (data.side === 'bid') {
         payBill.push(data);
@@ -85,12 +80,11 @@ class Main extends Component {
       orderSellSingle.map((s, sInd) => {
         if (p.quantity > 0 && p.price > s.price) {
           if (s.quantity > 0) {
-            tradingDetail.push({
-              number: sInd,
-              price: (p.price - s.price) / 2,
-              date: new Date().getTime(),
-              pay: orderPayBill[pInd],
-              sell: orderSellSingle[sInd]
+            tradingDetail.unshift({
+              price: (p.price + s.price) / 2,
+              date: this.getDateT(),
+              pay: Object.assign({}, orderPayBill[pInd]),
+              sell: Object.assign({}, orderSellSingle[sInd])
             });
             if (p.quantity >= s.quantity) {
               orderPayBill[pInd].quantity = p.quantity - s.quantity;
@@ -105,11 +99,15 @@ class Main extends Component {
     });
     notDealPay = orderPayBill.filter(item => item.quantity > 0);
     notDealSell = orderSellSingle.filter(item => item.quantity > 0);
-    tradingDetail.sort((a, b) => a.date - b.date);
+    tradingDetail.map((item, index) => {
+      item.key = index;
+      item.number = index;
+    });
     this.setState({
       notDealPay,
       notDealSell: this.sortDatas(notDealSell),
-      tradingDetail
+      tradingDetail,
+      currentIndex: resp.length
     });
   }
   getBodyWrapper(body) {
@@ -119,23 +117,23 @@ class Main extends Component {
       </Animate>
     );
   }
+  expandedRowRender(record) {
+    return (<div>
+      <p>买方（bid）: </p>
+      <span>number: {record.pay.number} /</span>
+      <span> price: {record.pay.price} /</span>
+      <span> quantity: {record.pay.quantity} </span>
+      <p>卖方（ask）: </p>
+      <span>number: {record.sell.number} /</span>
+      <span> price: {record.sell.price} /</span>
+      <span> quantity: {record.sell.quantity} </span>
+    </div>);
+  }
   render() {
     const {notDealPay, notDealSell, tradingDetail} = this.state;
-    console.log('tradingDetail', tradingDetail);
-    const columns = [{
-      title: 'Number',
-      dataIndex: 'number',
-      key: 'number'
-    }, {
-      title: 'Price',
-      dataIndex: 'price',
-      key: 'price',
-      sorter: (a, b) => a.price - b.price
-    }, {
-      title: 'Quantity',
-      dataIndex: 'quantity',
-      key: 'quantity'
-    }];
+    const payDatas = notDealPay.slice(0, 20);
+    const sellDatas = notDealSell.slice(0, 20);
+    const tradingD = tradingDetail.slice(0, 30);
     return (
       <Layout className="my-layout">
         <Header><h2>证券交易市场</h2></Header>
@@ -143,16 +141,22 @@ class Main extends Component {
           <Row>
             <Col span={12}>
               <Tabs defaultActiveKey="1">
-                <TabPane tab="买单(bid)" key="1">
-                  <Table columns={columns} data={notDealPay} getBodyWrapper={this.getBodyWrapper} />
+                <TabPane tab={`买单(bid) ${payDatas.length}条记录`} key="1">
+                  <Table columns={columnsDeal} data={payDatas} getBodyWrapper={this.getBodyWrapper} />
                 </TabPane>
-                <TabPane tab="卖单(ask)" key="2">
-                  <Table columns={columns} data={notDealSell} getBodyWrapper={this.getBodyWrapper} />
+                <TabPane tab={`卖单(ask) ${payDatas.length}条记录`} key="2">
+                  <Table columns={columnsDeal} data={sellDatas} getBodyWrapper={this.getBodyWrapper} />
                 </TabPane>
               </Tabs>
             </Col>
             <Col span={12}>
-              <p>成交队列</p>
+              <Table
+                columns={columnsDetail}
+                data={tradingD}
+                getBodyWrapper={this.getBodyWrapper}
+                expandedRowRender={this.expandedRowRender}
+                title={currentData => <div>成交队列: {currentData.length}条记录 </div>}
+                />
             </Col>
           </Row>
         </Content>

@@ -6,14 +6,17 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development webpack-dev-server --config webpack.dev.js --progress",
     "prod": "npm run clean && cross-env NODE_ENV=production webpack --config webpack.prod.js --progress",
-    "clean": "rimraf ./dist/*",
-    "preview": "cd dist && hs -p 9001"
+    "clean": "rimraf ./static/*",
+    "open": "opn http://localhost:9888",
+    "serv": "go run main.go",
+    "start": "npm run open && npm run serv"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "antd": "^2.11.0",
+    "babel-plugin-import": "^1.2.1",
     "bundle-loader": "^0.5.5",
     "lodash": "^4.17.4",
     "rc-animate": "^2.3.6",
@@ -41,10 +44,10 @@
     "extract-text-webpack-plugin": "^2.1.0",
     "file-loader": "^0.11.1",
     "html-webpack-plugin": "^2.28.0",
-    "http-server": "^0.10.0",
     "image-webpack-loader": "^3.3.0",
     "less": "^2.7.2",
     "less-loader": "^4.0.3",
+    "opn-cli": "^3.1.0",
     "progress-bar-webpack-plugin": "^1.9.3",
     "rimraf": "^2.6.1",
     "style-loader": "^0.17.0",

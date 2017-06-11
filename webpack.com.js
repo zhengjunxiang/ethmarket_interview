@@ -16,9 +16,9 @@ const config = {
   },
   output: {
     filename: 'js/[name].[chunkhash:8].js',
-    path: Path.resolve(__dirname, 'dist'),
+    path: Path.resolve(__dirname, 'static'),
     chunkFilename: "js/[name].[chunkhash:8].js",
-    publicPath: "/"
+    publicPath: ""
   },
   resolve: {
     extensions: ['.js', '.jsx']
