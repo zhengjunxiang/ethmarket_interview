@@ -144,7 +144,7 @@ class Main extends Component {
                 <TabPane tab={`买单(bid) ${payDatas.length}条记录`} key="1">
                   <Table columns={columnsDeal} data={payDatas} getBodyWrapper={this.getBodyWrapper} />
                 </TabPane>
-                <TabPane tab={`卖单(ask) ${payDatas.length}条记录`} key="2">
+                <TabPane tab={`卖单(ask) ${sellDatas.length}条记录`} key="2">
                   <Table columns={columnsDeal} data={sellDatas} getBodyWrapper={this.getBodyWrapper} />
                 </TabPane>
               </Tabs>
